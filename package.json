@@ -1,0 +1,8 @@
+{
+  "name": "modelproof",
+  "version": "0.1.0",
+  "description": "Permanent, verifiable AI models on Arweave",
+  "type": "commonjs",
+  "license": "MIT",
+  "dependencies": { "@ardrive/turbo-sdk": "^1" }
+}
