@@ -1,0 +1,481 @@
+{
+ "schema": "modelproof/manifest@1",
+ "name": "iris-mlp-int8",
+ "version": "0.1.0",
+ "description": "4-8-3 MLP trained on Iris, int8 weights, integer-only reproducible inference",
+ "license": "MIT",
+ "task": {
+  "type": "classification",
+  "classes": [
+   "setosa",
+   "versicolor",
+   "virginica"
+  ]
+ },
+ "architecture": "dense(4->8,relu,>>6) -> dense(8->3)",
+ "preprocessing": {
+  "features": [
+   "sepal_length",
+   "sepal_width",
+   "petal_length",
+   "petal_width"
+  ],
+  "mean": [
+   5.843333,
+   3.057333,
+   3.758,
+   1.199333
+  ],
+  "std": [
+   0.825301,
+   0.434411,
+   1.759404,
+   0.759693
+  ],
+  "input_scale": 32,
+  "rule": "int8 = clamp(round((x-mean)/std*input_scale),-128,127)"
+ },
+ "runtime": {
+  "spec": "MPW1 integer inference: int64 accumulate, relu, arithmetic >>shift, clamp int8; last layer raw int32 logits"
+ },
+ "weights": {
+  "format": "MPW1",
+  "bytes": 117,
+  "sha256": "56b9c9e4329f652a71b397a3cb428dc43fdf2dd657cde1286a21601510092654",
+  "arweave_tx": "SVHIFB9pR84SAv5TYwo_JUXJuAG8h7c1lTl-wmVmHl0"
+ },
+ "metrics": {
+  "holdout_n": 30,
+  "float_accuracy": 1,
+  "int8_accuracy": 1
+ },
+ "training": {
+  "seed": 1337,
+  "epochs": 300,
+  "lr": 0.05,
+  "source": "train_iris.py"
+ },
+ "test_vectors": [
+  {
+   "input": [
+    -29,
+    33,
+    -43,
+    -42
+   ],
+   "output": [
+    6723,
+    -5284,
+    -10967
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -33,
+    25,
+    -41,
+    -42
+   ],
+   "output": [
+    6181,
+    -4557,
+    -10413
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -40,
+    25,
+    -39,
+    -42
+   ],
+   "output": [
+    6373,
+    -4933,
+    -10549
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -2,
+    69,
+    -47,
+    -42
+   ],
+   "output": [
+    7483,
+    -6360,
+    -12044
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -6,
+    99,
+    -41,
+    -34
+   ],
+   "output": [
+    8268,
+    -7716,
+    -12495
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -29,
+    33,
+    -43,
+    -38
+   ],
+   "output": [
+    6396,
+    -4801,
+    -10609
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -29,
+    55,
+    -41,
+    -38
+   ],
+   "output": [
+    7379,
+    -6298,
+    -11471
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -33,
+    25,
+    -39,
+    -34
+   ],
+   "output": [
+    5655,
+    -3967,
+    -9780
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -37,
+    40,
+    -43,
+    -46
+   ],
+   "output": [
+    7587,
+    -6477,
+    -11801
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -52,
+    -56,
+    -45,
+    -38
+   ],
+   "output": [
+    2557,
+    476,
+    -7357
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -33,
+    33,
+    -39,
+    -25
+   ],
+   "output": [
+    5494,
+    -3829,
+    -9575
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    -48,
+    11,
+    -43,
+    -42
+   ],
+   "output": [
+    6158,
+    -4545,
+    -10496
+   ],
+   "label": "setosa"
+  },
+  {
+   "input": [
+    45,
+    11,
+    17,
+    8
+   ],
+   "output": [
+    -2088,
+    5298,
+    -1226
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    22,
+    11,
+    13,
+    13
+   ],
+   "output": [
+    -2167,
+    5205,
+    -1201
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    -13,
+    -56,
+    4,
+    4
+   ],
+   "output": [
+    -2757,
+    6126,
+    -710
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    25,
+    -19,
+    15,
+    13
+   ],
+   "output": [
+    -2548,
+    5295,
+    -979
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    18,
+    18,
+    17,
+    17
+   ],
+   "output": [
+    -2181,
+    4650,
+    -1298
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    -25,
+    -26,
+    3,
+    8
+   ],
+   "output": [
+    -2311,
+    5574,
+    -1054
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    -13,
+    -48,
+    1,
+    -4
+   ],
+   "output": [
+    -2520,
+    6405,
+    -785
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    -17,
+    -4,
+    13,
+    13
+   ],
+   "output": [
+    -2351,
+    4410,
+    -1118
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    18,
+    -56,
+    12,
+    4
+   ],
+   "output": [
+    -2788,
+    5910,
+    -734
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    14,
+    -12,
+    10,
+    4
+   ],
+   "output": [
+    -2232,
+    5667,
+    -1079
+   ],
+   "label": "versicolor"
+  },
+  {
+   "input": [
+    -6,
+    -41,
+    23,
+    34
+   ],
+   "output": [
+    -8924,
+    -3447,
+    4951
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    -2,
+    -19,
+    24,
+    51
+   ],
+   "output": [
+    -11211,
+    -5820,
+    7072
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    18,
+    -26,
+    21,
+    25
+   ],
+   "output": [
+    -5985,
+    591,
+    2191
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    53,
+    11,
+    41,
+    25
+   ],
+   "output": [
+    -7094,
+    -2310,
+    3378
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    10,
+    -4,
+    21,
+    25
+   ],
+   "output": [
+    -5210,
+    885,
+    1495
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    22,
+    -19,
+    34,
+    38
+   ],
+   "output": [
+    -10235,
+    -5070,
+    6220
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    41,
+    3,
+    24,
+    46
+   ],
+   "output": [
+    -8313,
+    -2274,
+    4212
+   ],
+   "label": "virginica"
+  },
+  {
+   "input": [
+    33,
+    -4,
+    26,
+    46
+   ],
+   "output": [
+    -9088,
+    -3660,
+    5066
+   ],
+   "label": "virginica"
+  }
+ ],
+ "outputs_digest": "b99d3a1ad34feed9e2f4e644c67f3b48ec8e33f5438a31b46ff0e851dc320004"
+}
