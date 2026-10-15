@@ -1,0 +1,5 @@
+node_modules/
+*.jwk
+wallet.json
+build/*.tar.gz
+package-lock.json
