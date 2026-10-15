@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ModelProof — verify an AI model stored on Arweave</title>
+<style>
+ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:860px;margin:0 auto;padding:24px;background:#0d1117;color:#e6edf3;line-height:1.5}
+ h1{margin:0 0 4px} .sub{color:#8b949e;margin:0 0 24px}
+ .card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px;margin:16px 0}
+ input{background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:8px;font:inherit}
+ input.tx{width:100%;box-sizing:border-box;font-family:ui-monospace,monospace}
+ button{background:#238636;color:#fff;border:0;border-radius:6px;padding:9px 16px;font:inherit;cursor:pointer;margin-top:10px}
+ .row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px} .row input{width:100%;box-sizing:border-box}
+ pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:10px;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
+ .ok{color:#3fb950;font-weight:700} .bad{color:#f85149;font-weight:700} a{color:#58a6ff} small{color:#8b949e}
+</style>
+</head>
+<body>
+<h1>ModelProof</h1>
+<p class="sub">Permanent, verifiable AI models on Arweave. Paste a manifest transaction id: your browser downloads the weights from the permaweb, checks their SHA-256, and re-runs every recorded inference with integer-only math. If one bit differs, verification fails.</p>
+
+<div class="card">
+ <label>Manifest TX (Arweave)</label>
+ <input class="tx" id="tx" value="XCnP6FwdPqVPz5REcI7hHmBR8X75bKdOMGWXTOstbLI">
+ <button id="go">Verify model</button>
+ <div id="status" style="margin-top:12px"></div>
+ <pre id="out" hidden></pre>
+</div>
+
+<div class="card" id="trycard" hidden>
+ <b>Run the verified model yourself</b> <small>(Iris flower, measurements in cm)</small>
+ <div class="row" style="margin-top:8px">
+  <input id="f0" value="6.3" title="sepal length"><input id="f1" value="3.3" title="sepal width">
+  <input id="f2" value="6.0" title="petal length"><input id="f3" value="2.5" title="petal width">
+ </div>
+ <small>sepal length · sepal width · petal length · petal width</small><br>
+ <button id="run">Predict</button>
+ <pre id="pred" hidden></pre>
+</div>
+
+<div class="card"><small>
+ How it works: weights are stored as an int8 <code>MPW1</code> file; inference uses only integer add/multiply, ReLU and an arithmetic right-shift, so Python, Node and every browser produce byte-identical outputs. The manifest pins the weights' hash, the Arweave TX of the weights, test vectors and a digest of all outputs.
+ Source: <a href="https://github.com/mak777uh/modelproof">github.com/mak777uh/modelproof</a>
+</small></div>
+
+<script src="modelproof.js"></script>
+<script>
+const GWS=["https://arweave.net/","https://turbo-gateway.com/","https://ardrive.net/"];
+async function get(id){for(const g of GWS){try{const r=await fetch(g+id);if(r.ok)return{bytes:new Uint8Array(await r.arrayBuffer()),gw:g}}catch(e){}}throw new Error("could not fetch "+id)}
+let M=null,L=null;
+document.getElementById("go").onclick=async()=>{
+ const st=document.getElementById("status"),out=document.getElementById("out");
+ st.textContent="Fetching manifest…";out.hidden=true;
+ try{
+  const tx=document.getElementById("tx").value.trim();
+  const m=await get(tx);M=JSON.parse(new TextDecoder().decode(m.bytes));
+  st.textContent="Fetching weights "+M.weights.arweave_tx+" …";
+  const w=await get(M.weights.arweave_tx);
+  const t0=performance.now();const rep=await ModelProof.verify(M,w.bytes);const ms=(performance.now()-t0).toFixed(1);
+  L=ModelProof.decode(w.bytes);
+  st.innerHTML=(rep.ok?'<span class="ok">✔ VERIFIED</span>':'<span class="bad">✘ MISMATCH</span>')+
+   ` — ${M.name} v${M.version}: ${rep.vectors_matched}/${rep.vectors_total} test vectors reproduced in ${ms} ms, weights ${M.weights.bytes} bytes. <a href="${w.gw}${M.weights.arweave_tx}">weights</a> · <a href="${m.gw}${tx}">manifest</a>`;
+  out.textContent=JSON.stringify(rep,null,1);out.hidden=false;
+  document.getElementById("trycard").hidden=!rep.ok;
+ }catch(e){st.innerHTML='<span class="bad">Error: '+e.message+'</span>'}
+};
+document.getElementById("run").onclick=()=>{
+ const vals=[0,1,2,3].map(i=>parseFloat(document.getElementById("f"+i).value));
+ const x=ModelProof.preprocess(M,vals);const y=ModelProof.infer(L,x);
+ let b=0;for(let i=1;i<y.length;i++)if(y[i]>y[b])b=i;
+ const p=document.getElementById("pred");p.hidden=false;
+ p.textContent=JSON.stringify({class:M.task.classes[b],input_int8:x,logits:y});
+};
+</script>
+</body>
+</html>
